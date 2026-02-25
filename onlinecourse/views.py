@@ -140,18 +140,24 @@ def show_exam_result(request, course_id, submission_id):
     selected_ids = submission.choices.values_list('id', flat=True)
 
     total_score = 0
+    max_score = 0
     questions = course.question_set.all()
 
     for question in questions:
+        max_score += question.grade
         if question.is_get_score(selected_ids):
             total_score += question.grade
+
+    grade = 0
+    if max_score > 0:
+        grade = total_score / max_score * 100
 
     context = {
         'course': course,
         'submission': submission,
         'total_score': total_score,
+        'max_score': max_score,
+        'grade': grade,
+        'questions': questions,
     }
-
-    return render(request,
-                  'onlinecourse/exam_result_bootstrap.html',
-                  context)
+    return render(request, 'onlinecourse/exam_result_bootstrap.html', context)
